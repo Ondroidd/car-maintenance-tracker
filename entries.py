@@ -192,3 +192,42 @@ def add_fuel_entry(data):
 
     print("New fuel entry saved.")
     data["fuel"].append(fuel_entry)
+
+
+def delete_entry(data, kind):
+    entries = data[kind]
+
+    if not entries:
+        print("There are no entries to delete.")
+        return
+
+    for idx, entry in enumerate(entries, start=1):
+        print(f"{idx}) {entry['date']} @ {entry['mileage']} - ...")
+    
+    while True:
+        choice = input("Enter the number of the entry to delete (or 'q' to cancel): ").strip()
+        if choice.lower() == "q":
+            print("Entry deletion canceled.")
+            return
+        try:
+            choice_num = int(choice)
+            if not (1 <= choice_num <= len(entries)):
+                print("Invalid entry number.")
+                continue
+            
+            index = choice_num - 1 # convert back to 0-based idx
+
+            print("You have chosen:")
+            for key, value in entries[index].items():
+                print(f"    {key}: {value}")
+
+            confirm = input("Delete this entry? (Y/n): ").strip().lower()
+            if confirm not in ("", "y"):
+                print("Entry deletion canceled.")
+                return
+
+            entries.pop(index)
+            print("Entry deletion successful.")
+            return 
+        except ValueError:
+            print("Please enter a number from the list.")

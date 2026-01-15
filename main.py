@@ -1,5 +1,5 @@
 from data_io import load_data, save_data
-from entries import add_maintenance_entry, add_fuel_entry, maintenance_history, fuel_history
+from entries import add_maintenance_entry, add_fuel_entry, maintenance_history, fuel_history, delete_entry
 from stats import show_fuel_stats, show_maintenance_stats
 
 def main():
@@ -12,6 +12,8 @@ def main():
         print("3) View maintenance history")
         print("4) View fuel history")
         print("5) View statistics")
+        print("6) Delete maintenance entry")
+        print("7) Delete fuel entry")
         print("0) Exit")
 
         choice = input("Choose an option: ").strip()
@@ -33,6 +35,14 @@ def main():
             show_fuel_stats(data)
             print("")
             show_maintenance_stats(data)
+        elif choice == "6":
+            delete_entry(data, "maintenance")
+            print("")
+            save_data(data)
+        elif choice == "7":
+            delete_entry(data, "fuel")
+            print("")
+            save_data(data)
         elif choice == "0":
             print("\nGoodbye!")
             break
