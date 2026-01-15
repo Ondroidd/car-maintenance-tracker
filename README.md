@@ -47,6 +47,7 @@ Install dependencies:
 
 ```bash
 pip install rich
+```
 
 ## Usage
 
@@ -54,6 +55,7 @@ Clone the repo and run:
 
 ```bash
 python main.py
+```
 
 You’ll see a menu like:
 
