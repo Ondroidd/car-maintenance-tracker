@@ -2,7 +2,6 @@ from rich.console import Console
 from rich.table import Table
 from rich import box
 from datetime import datetime
-import json
 
 def render_history(data, kind, columns):
     # render fuel/maintenance entry table
@@ -21,7 +20,8 @@ def maintenance_history(data):
         print("No maintenance entries yet.")
     else:
         cols = ["date", "mileage", "service_type", "cost", "notes"]
-        render_history(data["maintenance"], "Maintenance", cols)
+        sorted_data = sorted(data["maintenance"], key=lambda x: x["date"])
+        render_history(sorted_data, "Maintenance", cols)
 
 
 def fuel_history(data):
@@ -29,7 +29,8 @@ def fuel_history(data):
         print("No fuel entries yet.")
     else:
         cols = ["date", "mileage", "liters", "cost", "price_per_liter"]
-        render_history(data["fuel"], "Fuel", cols)
+        sorted_data = sorted(data["fuel"], key=lambda x: x["date"])
+        render_history(sorted_data, "Fuel", cols)
 
 
 def add_maintenance_entry(data):
@@ -38,7 +39,10 @@ def add_maintenance_entry(data):
     # Date
     while True:
         try:
-            date_str = input("Enter date (YYYY-MM-DD): ")
+            date_str = input("Enter date (YYYY-MM-DD) (or 'q' to cancel): ").strip()
+            if date_str.lower() == "q":
+                print("\nEntry creation canceled.")
+                return
             datetime.strptime(date_str, "%Y-%m-%d")  # Validate format
             maintenance_entry["date"] = date_str
             break
@@ -48,7 +52,11 @@ def add_maintenance_entry(data):
     # Mileage
     while True:
         try:
-            mileage = int(input("Enter mileage: "))
+            mileage = input("Enter mileage (or 'q' to cancel): ").strip()
+            if mileage.lower() == "q":
+                print("\nEntry creation canceled.")
+                return
+            mileage = int(mileage)
             if mileage < 0:
                 print("Mileage cannot be negative. Please enter 0 or greater.")
                 continue
@@ -59,7 +67,10 @@ def add_maintenance_entry(data):
 
     # Service type
     while True:
-        service_type = input("Enter service type: ").strip()
+        service_type = input("Enter service type (or 'q' to cancel): ").strip()
+        if service_type.lower() == "q":
+            print("\nEntry creation canceled.")
+            return
         if service_type:
             maintenance_entry["service_type"] = service_type
             break
@@ -68,7 +79,11 @@ def add_maintenance_entry(data):
     # Cost
     while True:
         try:
-            cost = float(input("Enter cost: "))
+            cost = input("Enter cost (or 'q' to cancel): ").strip()
+            if cost.lower() == "q":
+                print("\nEntry creation canceled.")
+                return
+            cost = float(cost)
             if cost < 0:
                 print("Cost cannot be negative. Please enter 0 or greater.")
                 continue
@@ -78,9 +93,23 @@ def add_maintenance_entry(data):
             print("Please enter a valid number for cost.")
 
     # Notes
-    notes = input("Enter notes (optional): ").strip()
+    notes = input("Enter notes (optional) (or 'q' to cancel): ").strip()
+    if notes.lower() == "q":
+        print("\nEntry creation canceled.")
+        return
     maintenance_entry["notes"] = notes if notes else None
 
+    # confirmation before saving new entry
+    print("You entered:")
+    for key, value in maintenance_entry.items():
+        print(f"    {key}: {value}")
+
+    confirm = input("Save this entry? (Y/n): ").strip().lower()
+    if confirm not in ("", "y"):
+        print("Entry discarded.")
+        return
+
+    print("New maintenance entry saved.")
     data["maintenance"].append(maintenance_entry)
 
 
@@ -90,7 +119,10 @@ def add_fuel_entry(data):
     # Date
     while True:
         try:
-            date_str = input("Enter date (YYYY-MM-DD): ")
+            date_str = input("Enter date (YYYY-MM-DD) (or 'q' to cancel): ").strip()
+            if date_str.lower() == "q":
+                print("\nEntry creation canceled.")
+                return
             datetime.strptime(date_str, "%Y-%m-%d")  # Validate format
             fuel_entry["date"] = date_str
             break
@@ -100,7 +132,11 @@ def add_fuel_entry(data):
     # Mileage
     while True:
         try:
-            mileage = int(input("Enter mileage: "))
+            mileage = input("Enter mileage (or 'q' to cancel): ").strip()
+            if mileage.lower() == "q":
+                print("\nEntry creation canceled.")
+                return
+            mileage = int(mileage)
             if mileage < 0:
                 print("Mileage cannot be negative. Please enter 0 or greater.")
                 continue
@@ -112,7 +148,11 @@ def add_fuel_entry(data):
     # Liters
     while True:
         try:
-            liters = float(input("Enter liters: "))
+            liters = input("Enter liters (or 'q' to cancel): ").strip()
+            if liters.lower() == "q":
+                print("\nEntry creation canceled.")
+                return
+            liters = float(liters)
             if liters <= 0:
                 print("Liters must be greater than 0.")
                 continue
@@ -124,7 +164,11 @@ def add_fuel_entry(data):
     # Cost
     while True:
         try:
-            cost = float(input("Enter cost: "))
+            cost = input("Enter cost (or 'q' to cancel): ").strip()
+            if cost.lower() == "q":
+                print("\nEntry creation canceled.")
+                return
+            cost = float(cost)
             if cost < 0:
                 print("Cost cannot be negative. Please enter 0 or greater.")
                 continue
@@ -136,4 +180,15 @@ def add_fuel_entry(data):
     # Price per liter
     fuel_entry["price_per_liter"] = round(cost / liters, 2)
 
+    # confirmation before saving new entry
+    print("You entered:")
+    for key, value in fuel_entry.items():
+        print(f"    {key}: {value}")
+
+    confirm = input("Save this entry? (Y/n): ").strip().lower()
+    if confirm not in ("", "y"):
+        print("Entry discarded.")
+        return
+
+    print("New fuel entry saved.")
     data["fuel"].append(fuel_entry)

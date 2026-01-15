@@ -19,11 +19,9 @@ def main():
         if choice == "1":
             add_maintenance_entry(data)
             save_data(data)
-            print("New maintenance entry saved.")
         elif choice == "2":
             add_fuel_entry(data)
             save_data(data)
-            print("New fuel entry saved.")
         elif choice == "3":
             print("")
             maintenance_history(data)
@@ -36,7 +34,7 @@ def main():
             print("")
             show_maintenance_stats(data)
         elif choice == "0":
-            print("Goodbye!")
+            print("\nGoodbye!")
             break
         else:
             print("Invalid choice, please try again.")
