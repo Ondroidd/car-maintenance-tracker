@@ -39,7 +39,7 @@ Data is stored in a JSON file and basic statistics are computed from history.
 
 ## Requirements
 
-- Python 3.10+ (or whatever version you’re using)
+- Python 3.10+
 - Dependencies:
   - `rich`
 
@@ -58,7 +58,7 @@ python main.py
 ```
 
 You’ll see a menu like:
-
+```
 Car Maintenance Tracker
 1) Add maintenance
 2) Add fuel
@@ -68,12 +68,12 @@ Car Maintenance Tracker
 6) Delete maintenance entry
 7) Delete fuel entry
 0) Exit
-
+```
 Data is stored in data.json in the project directory.
 If data.json does not exist, it is created automatically with empty maintenance and fuel lists.
 
 Data format (data.json):
-
+```
 {
   "maintenance": [
     {
