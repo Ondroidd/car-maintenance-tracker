@@ -3,9 +3,27 @@ from rich.table import Table
 from rich import box
 from datetime import datetime
 
+
+def render_confirmation(entry, kind):
+    # render fuel/maintenance entry before save/delete
+    if kind == "maintenance":
+        columns = ["date", "mileage", "service_type", "cost", "notes"]
+    elif kind == "fuel":
+        columns = ["date", "mileage", "liters", "cost", "price_per_liter"]
+
+    table = Table(box=box.SIMPLE_HEAD)
+    for col in columns:
+        table.add_column(col, justify="center", style="cyan", no_wrap=True)
+    row = [str(entry[col]) for col in columns]
+    table.add_row(*row)
+
+    console = Console()
+    console.print(table)
+
+
 def render_history(data, kind, columns):
     # render fuel/maintenance entry table
-    table = Table(title=f"{kind} history", box=box.SIMPLE_HEAD)
+    table = Table(title=f"{kind} history", box=box.SIMPLE_HEAD, row_styles=["", "dim"])
     for col in columns:
         table.add_column(col, justify="center", style="cyan", no_wrap=True)
     for entry in data:
@@ -15,9 +33,10 @@ def render_history(data, kind, columns):
     console = Console()
     console.print(table)
 
+
 def maintenance_history(data):
     if not data["maintenance"]:
-        print("No maintenance entries yet.")
+        print("\nNo maintenance entries yet.")
     else:
         cols = ["date", "mileage", "service_type", "cost", "notes"]
         sorted_data = sorted(data["maintenance"], key=lambda x: x["date"])
@@ -26,7 +45,7 @@ def maintenance_history(data):
 
 def fuel_history(data):
     if not data["fuel"]:
-        print("No fuel entries yet.")
+        print("\nNo fuel entries yet.")
     else:
         cols = ["date", "mileage", "liters", "cost", "price_per_liter"]
         sorted_data = sorted(data["fuel"], key=lambda x: x["date"])
@@ -47,7 +66,7 @@ def add_maintenance_entry(data):
             maintenance_entry["date"] = date_str
             break
         except ValueError:
-            print("Please enter date in YYYY-MM-DD format.")
+            print("\nPlease enter date in YYYY-MM-DD format.")
 
     # Mileage
     while True:
@@ -58,12 +77,12 @@ def add_maintenance_entry(data):
                 return
             mileage = int(mileage)
             if mileage < 0:
-                print("Mileage cannot be negative. Please enter 0 or greater.")
+                print("\nMileage cannot be negative. Please enter 0 or greater.")
                 continue
             maintenance_entry["mileage"] = mileage
             break
         except ValueError:
-            print("Please enter a whole number for mileage (0 or greater).")
+            print("\nPlease enter a whole number for mileage (0 or greater).")
 
     # Service type
     while True:
@@ -74,7 +93,7 @@ def add_maintenance_entry(data):
         if service_type:
             maintenance_entry["service_type"] = service_type
             break
-        print("Service type cannot be empty.")
+        print("\nService type cannot be empty.")
 
     # Cost
     while True:
@@ -85,12 +104,12 @@ def add_maintenance_entry(data):
                 return
             cost = float(cost)
             if cost < 0:
-                print("Cost cannot be negative. Please enter 0 or greater.")
+                print("\nCost cannot be negative. Please enter 0 or greater.")
                 continue
             maintenance_entry["cost"] = cost
             break
         except ValueError:
-            print("Please enter a valid number for cost.")
+            print("\nPlease enter a valid number for cost.")
 
     # Notes
     notes = input("Enter notes (optional) (or 'q' to cancel): ").strip()
@@ -100,16 +119,15 @@ def add_maintenance_entry(data):
     maintenance_entry["notes"] = notes if notes else None
 
     # confirmation before saving new entry
-    print("You entered:")
-    for key, value in maintenance_entry.items():
-        print(f"    {key}: {value}")
+    print("\nYou entered:")
+    render_confirmation(maintenance_entry, "maintenance")
 
-    confirm = input("Save this entry? (Y/n): ").strip().lower()
+    confirm = input("\nSave this entry? (Y/n): ").strip().lower()
     if confirm not in ("", "y"):
-        print("Entry discarded.")
+        print("\nEntry discarded.")
         return
 
-    print("New maintenance entry saved.")
+    print("\nNew maintenance entry saved.")
     data["maintenance"].append(maintenance_entry)
 
 
@@ -127,7 +145,7 @@ def add_fuel_entry(data):
             fuel_entry["date"] = date_str
             break
         except ValueError:
-            print("Please enter date in YYYY-MM-DD format.")
+            print("\nPlease enter date in YYYY-MM-DD format.")
 
     # Mileage
     while True:
@@ -138,12 +156,12 @@ def add_fuel_entry(data):
                 return
             mileage = int(mileage)
             if mileage < 0:
-                print("Mileage cannot be negative. Please enter 0 or greater.")
+                print("\nMileage cannot be negative. Please enter 0 or greater.")
                 continue
             fuel_entry["mileage"] = mileage
             break
         except ValueError:
-            print("Please enter a whole number for mileage (0 or greater).")
+            print("\nPlease enter a whole number for mileage (0 or greater).")
 
     # Liters
     while True:
@@ -154,12 +172,12 @@ def add_fuel_entry(data):
                 return
             liters = float(liters)
             if liters <= 0:
-                print("Liters must be greater than 0.")
+                print("\nLiters must be greater than 0.")
                 continue
             fuel_entry["liters"] = liters
             break
         except ValueError:
-            print("Please enter a valid number for liters.")
+            print("\nPlease enter a valid number for liters.")
 
     # Cost
     while True:
@@ -170,27 +188,26 @@ def add_fuel_entry(data):
                 return
             cost = float(cost)
             if cost < 0:
-                print("Cost cannot be negative. Please enter 0 or greater.")
+                print("\nCost cannot be negative. Please enter 0 or greater.")
                 continue
             fuel_entry["cost"] = cost
             break
         except ValueError:
-            print("Please enter a valid number for cost.")
+            print("\nPlease enter a valid number for cost.")
 
     # Price per liter
     fuel_entry["price_per_liter"] = round(cost / liters, 2)
 
     # confirmation before saving new entry
-    print("You entered:")
-    for key, value in fuel_entry.items():
-        print(f"    {key}: {value}")
+    print("\nYou entered:")
+    render_confirmation(fuel_entry, "fuel")
 
-    confirm = input("Save this entry? (Y/n): ").strip().lower()
+    confirm = input("\nSave this entry? (Y/n): ").strip().lower()
     if confirm not in ("", "y"):
-        print("Entry discarded.")
+        print("\nEntry discarded.")
         return
 
-    print("New fuel entry saved.")
+    print("\nNew fuel entry saved.")
     data["fuel"].append(fuel_entry)
 
 
@@ -198,36 +215,36 @@ def delete_entry(data, kind):
     entries = data[kind]
 
     if not entries:
-        print("There are no entries to delete.")
+        print("\nThere are no entries to delete.")
         return
 
     for idx, entry in enumerate(entries, start=1):
         print(f"{idx}) {entry['date']} @ {entry['mileage']} - ...")
     
     while True:
-        choice = input("Enter the number of the entry to delete (or 'q' to cancel): ").strip()
+        choice = input("\nEnter the number of the entry to delete (or 'q' to cancel): ").strip()
         if choice.lower() == "q":
-            print("Entry deletion canceled.")
+            print("\nEntry deletion canceled.")
             return
         try:
             choice_num = int(choice)
             if not (1 <= choice_num <= len(entries)):
-                print("Invalid entry number.")
+                print("\nInvalid entry number.")
                 continue
             
             index = choice_num - 1 # convert back to 0-based idx
 
-            print("You have chosen:")
-            for key, value in entries[index].items():
-                print(f"    {key}: {value}")
+            # confirmation before deleting an entry
+            print(f"\nYou have chosen {kind} entry:")
+            render_confirmation(entries[index], kind)
 
-            confirm = input("Delete this entry? (Y/n): ").strip().lower()
+            confirm = input("\nDelete this entry? (Y/n): ").strip().lower()
             if confirm not in ("", "y"):
-                print("Entry deletion canceled.")
+                print("\nEntry deletion canceled.")
                 return
 
             entries.pop(index)
-            print("Entry deletion successful.")
+            print("\nEntry deletion successful.")
             return 
         except ValueError:
-            print("Please enter a number from the list.")
+            print("\nPlease enter a number from the list.")
